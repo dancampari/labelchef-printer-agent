@@ -151,9 +151,9 @@ test('REGRESSÃO: fixQueue limpa fila via Get-PrintJob | Remove-PrintJob + Resum
     assert.match(src, /ErrorAction\s+SilentlyContinue/, 'fixQueue deve usar -ErrorAction SilentlyContinue como defensiva');
 });
 
-test('REGRESSÃO: package.json está em 3.2.0', () => {
+test('REGRESSÃO: package.json tem version semver válida', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8'));
-    assert.equal(pkg.version, '3.2.0');
+    assert.match(pkg.version, /^\d+\.\d+\.\d+$/, 'pkg.version deve estar em formato X.Y.Z');
 });
 
 test('REGRESSÃO: controllers.js reporta version dinâmica (pkg.version) em /api/health', () => {

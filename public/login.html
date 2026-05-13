@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OnTrack | Agente de Impressão</title>
+    <link rel="icon" type="image/x-icon" href="icon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Anti-flash: aplica tema ANTES do paint -->
+    <script>
+        (function () {
+            var theme = localStorage.getItem('ontrack-agent-theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <style>
+        /* Tokens exatos do globals.css dark do OnTrack */
+        :root {
+            --background: hsl(240, 10%, 3.9%);
+            --foreground: hsl(0, 0%, 98%);
+            --card: hsl(240, 6%, 6%);
+            --card-foreground: hsl(0, 0%, 98%);
+            --primary: hsl(0, 0%, 98%);
+            --primary-foreground: hsl(240, 5.9%, 10%);
+            --secondary: hsl(240, 3.7%, 15.9%);
+            --muted: hsl(240, 3.7%, 15.9%);
+            --muted-foreground: hsl(240, 5%, 64.9%);
+            --accent: hsl(240, 3.7%, 15.9%);
+            --accent-foreground: hsl(0, 0%, 98%);
+            --destructive: hsl(0, 62.8%, 30.6%);
+            --border: hsl(240, 3.7%, 20%);
+            --input: hsl(240, 3.7%, 20%);
+            --ring: hsl(240, 4.9%, 83.9%);
+            --radius: 0.5rem;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--background);
+            color: var(--foreground);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-font-smoothing: antialiased;
+            -webkit-app-region: drag;
+        }
+
+        .login-card {
+            background: var(--card);
+            padding: 32px 28px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 360px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            -webkit-app-region: no-drag;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .logo-area {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 14px;
+            background: var(--muted);
+            border: 1px solid var(--border);
+            border-radius: calc(var(--radius) + 2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .logo-area img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+            color: var(--card-foreground);
+        }
+
+        .header p {
+            color: var(--muted-foreground);
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: var(--muted-foreground);
+            margin-bottom: 5px;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px 10px;
+            background: var(--background);
+            border: 1px solid var(--input);
+            border-radius: var(--radius);
+            color: var(--foreground);
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--ring);
+            box-shadow: 0 0 0 2px hsl(240, 4.9%, 83.9%, 0.15);
+        }
+
+        input::placeholder {
+            color: var(--muted-foreground);
+            opacity: 0.6;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .checkbox-group label {
+            margin: 0;
+            font-size: 13px;
+            text-transform: none;
+            letter-spacing: 0;
+            color: var(--muted-foreground);
+            cursor: pointer;
+        }
+
+        /* primary → bg-primary text-primary-foreground hover:bg-primary/90 */
+        button[type="submit"] {
+            width: 100%;
+            height: 38px;
+            padding: 0 14px;
+            background: var(--primary);
+            color: var(--primary-foreground);
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 14px;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button[type="submit"]:hover {
+            background: hsl(0, 0%, 90%);
+        }
+
+        button[type="submit"]:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(0, 0, 0, 0.2);
+            border-top-color: var(--primary-foreground);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .error-msg {
+            background: hsl(0, 62.8%, 30.6%, 0.1);
+            color: hsl(0, 72%, 60%);
+            border: 1px solid hsl(0, 62.8%, 30.6%, 0.3);
+            padding: 9px 12px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 20px 0;
+        }
+
+        .app-label {
+            font-size: 11px;
+            color: var(--muted-foreground);
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-card">
+        <div class="header">
+            <div class="logo-area">
+                <img src="icon.png" alt="OnTrack">
+            </div>
+            <h1>Bem-vindo ao OnTrack</h1>
+            <p>Entre com sua conta para ativar o agente</p>
+        </div>
+
+        <div id="errorBox" class="error-msg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            <span id="errorText">Erro ao conectar</span>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>E-mail</label>
+                <input type="email" id="email" required autocomplete="email" placeholder="seu@email.com">
+            </div>
+
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Lembrar credenciais</label>
+            </div>
+
+            <button type="submit" id="btnSubmit">
+                <span>Entrar</span>
+            </button>
+        </form>
+
+        <p class="app-label">OnTrack — Agente de Impressão</p>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isExplicitLogout = urlParams.get('logout') === '1';
+
+            if (!isExplicitLogout) {
+                try {
+                    const statusRes = await fetch('/api/status');
+                    if (statusRes.ok) {
+                        const statusData = await statusRes.json();
+                        if (statusData.status && statusData.status !== 'Desconectado') {
+                            window.location.href = '/';
+                            return;
+                        }
+                    }
+                } catch (e) { }
+
+                try {
+                    const autoLoginRes = await fetch('/api/auto-login', { method: 'POST' });
+                    const autoLoginData = await autoLoginRes.json();
+                    if (autoLoginData.ok) { window.location.href = '/'; return; }
+                } catch (e) { }
+            }
+
+            try {
+                const res = await fetch('/api/saved-credentials');
+                const data = await res.json();
+                if (data.ok && data.email && data.password) {
+                    document.getElementById('email').value = data.email;
+                    document.getElementById('password').value = data.password;
+                    document.getElementById('remember').checked = true;
+                }
+            } catch (e) { }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const btn = document.getElementById('btnSubmit');
+            const errorBox = document.getElementById('errorBox');
+
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div> Entrando...';
+            errorBox.style.display = 'none';
+
+            try {
+                const res = await fetch('/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, remember })
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    window.location.href = '/';
+                } else {
+                    throw new Error(data.error || 'Falha na autenticação');
+                }
+            } catch (err) {
+                document.getElementById('errorText').innerText = err.message;
+                errorBox.style.display = 'flex';
+                btn.disabled = false;
+                btn.innerHTML = '<span>Entrar</span>';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent Spooler</title>
+</head>
+<body>
+    <div id="print-container"></div>
+    <script>
+        // Listen for IPC messages to inject HTML
+        window.electronSpoolerAPI.onInjectHtml((event, { id, htmlContent, printerName, widthMicrons }) => {
+            const container = document.getElementById('print-container');
+            
+            // Clean up old content
+            container.innerHTML = '';
+            
+            // Inject new content
+            container.innerHTML = htmlContent;
+
+            // Use requestAnimationFrame to ensure the DOM has painted before sending back the ready signal.
+            // A slight timeout guarantees that any browser reflow has settled.
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    window.electronSpoolerAPI.sendReadyToPrint(id, printerName, widthMicrons);
+                }, 50); // 50ms instead of 1200ms
+            });
+        });
+    </script>
+</body>
+</html>

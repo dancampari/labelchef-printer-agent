@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>LabelChef Tray</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #171717;
+            --text-color: #f5f5f5;
+            --border-color: #2a2a2a;
+            --hover-color: #262626;
+            --accent-color: hsl(142, 55%, 46%);
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            user-select: none;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header {
+            padding: 12px 16px;
+            background: #0a0a0a;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 16px;
+            height: 16px;
+        }
+
+        .title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .status-list {
+            padding: 8px 0;
+        }
+
+        .status-item {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            transition: background 0.2s;
+        }
+
+        .status-item:hover {
+            background: var(--hover-color);
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        /* ANIMAÇÃO DE ROTAÇÃO (SPIN) */
+        .spin {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--border-color);
+            margin: 4px 0;
+        }
+
+        .actions {
+            padding: 4px 0;
+        }
+
+        .action-item {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #ddd;
+        }
+
+        .action-item:hover {
+            background: var(--accent-color);
+            color: #fff;
+        }
+
+        .footer {
+            background: #111;
+            padding: 4px 0;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="menu-header.png" class="logo">
+        <span class="title">LabelChef Agent</span>
+    </div>
+
+    <div class="status-list">
+        <!-- Status Sistema -->
+        <div class="status-item">
+            <img id="sysIcon" src="status-off.png" class="icon">
+            <span id="sysText">Sistema: ...</span>
+        </div>
+        
+        <!-- Status Impressora -->
+        <div class="status-item">
+            <img id="prnIcon" src="status-off.png" class="icon">
+            <span id="prnText">Impressora: ...</span>
+        </div>
+
+        <!-- Detalhe Status -->
+        <div class="status-item">
+            <img id="detIcon" src="status-off.png" class="icon">
+            <span id="detText" style="opacity: 0.7;">Status: ...</span>
+        </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="actions">
+        <div class="action-item" onclick="sendAction('fix')">
+            <img id="iconClean" src="action-clean-light.png" class="icon">
+            <span>Corrigir Fila</span>
+        </div>
+        <div class="action-item" onclick="sendAction('open')">
+            <img id="iconSettings" src="action-settings-light.png" class="icon">
+            <span>Painel de Controle</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="action-item" onclick="sendAction('exit')">
+            <img id="iconExit" src="action-exit-light.png" class="icon">
+            <span>Sair / Encerrar</span>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        // Recebe atualizações do Main Process
+        ipcRenderer.on('UPDATE_DATA', (event, data) => {
+            const { status, printerName, printerStatus, theme } = data;
+            
+            // Define sufixo baseado no tema (light/dark)
+            // Se tema do sistema é escuro, usamos ícones light (branco)
+            const suffix = theme === 'dark' ? 'light' : 'dark'; 
+            
+            // Atualiza ícones de ação
+            document.getElementById('iconClean').src = `action-clean-${suffix}.png`;
+            document.getElementById('iconSettings').src = `action-settings-${suffix}.png`;
+            document.getElementById('iconExit').src = `action-exit-${suffix}.png`;
+
+            // Lógica de Ícones de Status
+            updateStatusRow('sys', status, suffix);
+            updatePrinterRow(printerStatus, printerName, suffix);
+            
+            // Atualiza textos
+            document.getElementById('sysText').textContent = `Sistema: ${status}`;
+            document.getElementById('prnText').textContent = `Impressora: ${printerName}`;
+            document.getElementById('detText').textContent = `Status: ${printerStatus}`;
+        });
+
+        function updateStatusRow(prefix, status, suffix) {
+            const iconEl = document.getElementById(prefix + 'Icon');
+            const s = status.toUpperCase();
+            
+            iconEl.classList.remove('spin'); // Reset
+
+            if (s.includes('INICIANDO') || s.includes('CONNECTING') || s === '...') {
+                iconEl.src = `wait-${suffix}.png`;
+                iconEl.classList.add('spin'); // ANIMAÇÃO AQUI!
+            } else if (s === 'ONLINE' || s === 'SUBSCRIBED' || s === 'CONNECTED') {
+                iconEl.src = 'status-on.png';
+            } else {
+                iconEl.src = 'status-off.png';
+            }
+        }
+
+        function updatePrinterRow(status, name, suffix) {
+            const prnIcon = document.getElementById('prnIcon');
+            const detIcon = document.getElementById('detIcon');
+            const s = status.toUpperCase();
+            const n = name.toUpperCase();
+
+            prnIcon.classList.remove('spin');
+            detIcon.classList.remove('spin');
+
+            let src = 'status-off.png';
+            let spin = false;
+
+            if (s === '...' || s.includes('DETECTANDO') || n.includes('DETECTANDO')) {
+                src = `wait-${suffix}.png`;
+                spin = true;
+            } else if (s === 'PRONTA' || s === 'ONLINE' || s === 'IDLE') {
+                src = 'status-on.png';
+            }
+
+            prnIcon.src = src;
+            detIcon.src = src;
+            
+            if (spin) {
+                prnIcon.classList.add('spin');
+                detIcon.classList.add('spin');
+            }
+        }
+
+        function sendAction(action) {
+            ipcRenderer.send('TRAY_ACTION', action);
+        }
+    </script>
+</body>
+</html>

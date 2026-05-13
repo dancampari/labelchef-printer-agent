@@ -1,0 +1,1254 @@
+/* ============================================================
+   OnTrack Printer Agent — Design System (Light + Dark)
+   Tokens HSL extraídos diretamente do globals.css do OnTrack
+   ============================================================ */
+
+/* ── MODO CLARO (padrão) ── */
+:root {
+    --theme-transition-duration: 0.4s;
+    --theme-transition-easing: cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Para o agent: card ligeiramente cinza para diferenciar do background branco */
+    --background: hsl(240, 4.8%, 95.9%);
+    /* zinc-100 — body/background cinza claro */
+    --foreground: hsl(240, 10%, 3.9%);
+    --card: hsl(0, 0%, 100%);
+    /* cards brancos sobre fundo cinza */
+    --card-foreground: hsl(240, 10%, 3.9%);
+    --popover: hsl(0, 0%, 100%);
+    --popover-foreground: hsl(240, 10%, 3.9%);
+    --primary: hsl(240, 5.9%, 10%);
+    --primary-foreground: hsl(0, 0%, 98%);
+    --secondary: hsl(240, 4.8%, 95.9%);
+    --secondary-foreground: hsl(240, 5.9%, 10%);
+    --muted: hsl(240, 4.8%, 95.9%);
+    --muted-foreground: hsl(240, 3.8%, 46.1%);
+    --accent: hsl(240, 4.8%, 95.9%);
+    --accent-foreground: hsl(240, 5.9%, 10%);
+    --destructive: hsl(0, 84.2%, 60.2%);
+    --destructive-foreground: hsl(0, 0%, 98%);
+    --border: hsl(240, 5.9%, 88%);
+    --input: hsl(240, 5.9%, 88%);
+    --ring: hsl(240, 10%, 3.9%);
+    --radius: 0.5rem;
+
+    /* Status — mais escuros no claro para contraste adequado */
+    --success: hsl(142, 76%, 28%);
+    /* verde mais escuro — legível no fundo claro */
+    --success-bg: hsl(142, 76%, 28%, 0.08);
+    --error: hsl(0, 72%, 42%);
+    --error-bg: hsl(0, 72%, 42%, 0.08);
+    --warning: hsl(38, 90%, 38%);
+    --warning-bg: hsl(38, 90%, 38%, 0.08);
+
+    /* Cores semânticas de log (com transição por tema) */
+    --log-error: var(--error);
+    --log-warning: var(--warning);
+    --log-info: hsl(221, 83%, 53%);
+    --log-network: hsl(221, 83%, 53%);
+    --log-print: hsl(271, 91%, 65%);
+    --log-queue: hsl(32, 95%, 44%);
+    --log-config: hsl(188, 94%, 43%);
+
+    /* Destaque de ícones de status */
+    --status-success-glow: rgba(22, 163, 74, 0.45);
+    --status-error-glow: rgba(220, 38, 38, 0.45);
+    --status-warning-glow: rgba(217, 119, 6, 0.45);
+}
+
+/* ── MODO ESCURO ── */
+.dark {
+    --background: hsl(240, 10%, 3.9%);
+    --foreground: hsl(0, 0%, 98%);
+    --card: hsl(240, 6%, 6%);
+    --card-foreground: hsl(0, 0%, 98%);
+    --popover: hsl(240, 10%, 3.9%);
+    --popover-foreground: hsl(0, 0%, 98%);
+    --primary: hsl(0, 0%, 98%);
+    --primary-foreground: hsl(240, 5.9%, 10%);
+    --secondary: hsl(240, 3.7%, 15.9%);
+    --secondary-foreground: hsl(0, 0%, 98%);
+    --muted: hsl(240, 3.7%, 15.9%);
+    --muted-foreground: hsl(240, 5%, 64.9%);
+    --accent: hsl(240, 3.7%, 15.9%);
+    --accent-foreground: hsl(0, 0%, 98%);
+    --destructive: hsl(0, 62.8%, 30.6%);
+    --destructive-foreground: hsl(0, 0%, 98%);
+    --border: hsl(240, 3.7%, 20%);
+    --input: hsl(240, 3.7%, 20%);
+    --ring: hsl(240, 4.9%, 83.9%);
+
+    --log-info: hsl(213, 94%, 68%);
+    --log-network: hsl(213, 94%, 68%);
+    --log-print: hsl(277, 88%, 72%);
+    --log-queue: hsl(38, 95%, 58%);
+    --log-config: hsl(188, 95%, 66%);
+
+    --status-success-glow: rgba(134, 229, 62, 0.5);
+    --status-error-glow: rgba(239, 68, 68, 0.5);
+    --status-warning-glow: rgba(250, 204, 21, 0.5);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+    animation-duration: var(--theme-transition-duration);
+    animation-timing-function: var(--theme-transition-easing);
+}
+
+::view-transition-group(root) {
+    mix-blend-mode: normal;
+}
+
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+    transition-property: none !important;
+    transition-delay: 0ms !important;
+}
+
+/* ── Reset ── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, box-shadow, filter, opacity;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+    transition-delay: 0ms;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--background);
+    color: var(--foreground);
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    font-size: 14px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+    background: color-mix(in hsl, var(--muted-foreground) 40%, transparent);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in hsl, var(--muted-foreground) 60%, transparent);
+}
+
+/* ─────────────────────────────────────────────
+   APP SHELL
+   ───────────────────────────────────────────── */
+.app-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+.app-header {
+    height: 56px;
+    padding: 0 16px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+    -webkit-app-region: drag;
+}
+
+.app-header * {
+    -webkit-app-region: no-drag;
+}
+
+.header-left .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo h1 {
+    font-size: 15px;
+    font-weight: 600;
+    margin: 0;
+    color: var(--foreground);
+    letter-spacing: -0.01em;
+}
+
+.version-badge {
+    font-size: 11px;
+    background: var(--muted);
+    color: var(--muted-foreground);
+    padding: 1px 6px;
+    border-radius: calc(var(--radius) - 2px);
+    margin-left: 6px;
+    border: 1px solid var(--border);
+    font-weight: 500;
+}
+
+/* ── Update Badge (header) — herda .version-badge, adiciona dot indicador
+   colorido + interatividade. Dot SEMPRE visível: verde=atualizado, amarelo=
+   update disponível, azul=baixando, etc. Texto fica neutro, cor fica no dot. */
+.update-badge {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    line-height: inherit;
+    vertical-align: baseline;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.update-badge:hover {
+    background: color-mix(in hsl, var(--muted) 65%, var(--foreground) 8%);
+    border-color: color-mix(in hsl, var(--border) 60%, var(--foreground) 15%);
+}
+
+.update-badge:focus-visible {
+    outline: 2px solid color-mix(in hsl, var(--primary, var(--foreground)) 60%, transparent);
+    outline-offset: 1px;
+}
+
+/* Dot indicador — sempre visível, muda cor por estado */
+.update-badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted-foreground);
+    flex-shrink: 0;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* state-idle = atualizado: dot VERDE forte (feedback claro de "tudo certo") */
+.update-badge.state-idle .update-badge-dot {
+    background: var(--success);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--success) 18%, transparent);
+}
+
+/* state-checking = dot pulsando neutro */
+.update-badge.state-checking {
+    font-style: italic;
+}
+.update-badge.state-checking .update-badge-dot {
+    background: var(--muted-foreground);
+    animation: update-dot-pulse 1s ease-in-out infinite;
+}
+@keyframes update-dot-pulse {
+    0%, 100% { opacity: 0.35; }
+    50%      { opacity: 1; }
+}
+
+/* state-available = update disponível: dot AMARELO + bg sutil pra chamar atenção */
+.update-badge.state-available {
+    color: var(--warning);
+    background: var(--warning-bg);
+    border-color: color-mix(in hsl, var(--warning) 30%, transparent);
+}
+.update-badge.state-available .update-badge-dot {
+    background: var(--warning);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--warning) 22%, transparent);
+    animation: update-dot-pulse 1.5s ease-in-out infinite;
+}
+
+/* state-downloading = dot azul */
+.update-badge.state-downloading {
+    color: var(--foreground);
+    background: color-mix(in hsl, var(--primary, #2563eb) 10%, var(--muted));
+    border-color: color-mix(in hsl, var(--primary, #2563eb) 30%, transparent);
+}
+.update-badge.state-downloading .update-badge-dot {
+    background: var(--primary, #2563eb);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--primary, #2563eb) 22%, transparent);
+}
+
+/* state-ready = pronta pra instalar: dot verde forte com pulse */
+.update-badge.state-ready {
+    color: var(--success);
+    background: var(--success-bg);
+    border-color: color-mix(in hsl, var(--success) 30%, transparent);
+}
+.update-badge.state-ready .update-badge-dot {
+    background: var(--success);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--success) 30%, transparent);
+    animation: update-dot-pulse 1.5s ease-in-out infinite;
+}
+
+/* state-error = dot vermelho */
+.update-badge.state-error {
+    color: var(--error);
+    background: var(--error-bg);
+    border-color: color-mix(in hsl, var(--error) 30%, transparent);
+}
+.update-badge.state-error .update-badge-dot {
+    background: var(--error);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--error) 22%, transparent);
+}
+
+/* state-skipped = dot cinza opaco */
+.update-badge.state-skipped .update-badge-dot {
+    background: var(--muted-foreground);
+    opacity: 0.6;
+}
+
+.subtitle {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    margin: 0;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* ── Theme Toggle Button ── */
+.btn-theme {
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+}
+
+.btn-theme:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.btn-theme .icon-sun {
+    display: none;
+}
+
+.btn-theme .icon-moon {
+    display: block;
+}
+
+.dark .btn-theme .icon-sun {
+    display: block;
+}
+
+.dark .btn-theme .icon-moon {
+    display: none;
+}
+
+/* ── Main Layout ── */
+.main-content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 12px;
+    padding: 12px;
+    height: calc(100vh - 56px);
+    overflow: hidden;
+}
+
+.left-column,
+.right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────
+   CARDS
+   ───────────────────────────────────────────── */
+.status-card,
+.logs-card,
+.config-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Status Card ── */
+.status-card {
+    flex-shrink: 0;
+    text-align: center;
+    padding: 20px 16px;
+}
+
+.status-icon {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--muted);
+    color: var(--foreground);
+}
+
+.status-icon.success {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.status-icon.error {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.status-icon.warning {
+    background: var(--warning-bg);
+    color: var(--warning);
+}
+
+.status-icon.success .material-symbols-outlined {
+    color: var(--success);
+    filter: drop-shadow(0 0 8px var(--status-success-glow));
+}
+
+.status-icon.error .material-symbols-outlined {
+    color: var(--error);
+    filter: drop-shadow(0 0 8px var(--status-error-glow));
+}
+
+.status-icon.warning .material-symbols-outlined {
+    color: var(--warning);
+    filter: drop-shadow(0 0 8px var(--status-warning-glow));
+    animation: spin 2s linear infinite;
+}
+
+.status-card h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+    color: var(--card-foreground);
+}
+
+.status-card p {
+    font-size: 13px;
+    color: var(--muted-foreground);
+    margin-bottom: 16px;
+}
+
+.status-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+/* ── Doctor Status (bloco dentro do log-config-header USB) ── */
+.doctor-status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid;
+    /* cor do texto pelo token — não hardcoded */
+    color: var(--foreground);
+    font-size: 13px;
+}
+
+.doctor-status.doctor-online {
+    background: var(--success-bg);
+    border-color: color-mix(in hsl, var(--success) 40%, transparent);
+}
+
+.doctor-status.doctor-offline {
+    background: var(--error-bg);
+    border-color: color-mix(in hsl, var(--error) 40%, transparent);
+}
+
+.doctor-name {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.doctor-queue {
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: var(--muted-foreground);
+}
+
+.doctor-status-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.doctor-online .doctor-status-row {
+    color: var(--success);
+}
+
+.doctor-offline .doctor-status-row {
+    color: var(--error);
+}
+
+.doctor-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0;
+}
+
+.doctor-warn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    margin-top: 2px;
+    color: var(--error);
+}
+
+/* ── Logs Card ── */
+.logs-card {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.logs-card h3,
+.config-card h3 {
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--muted-foreground);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+}
+
+.log-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: calc(var(--radius) - 2px);
+    border: 1px solid var(--border);
+}
+
+.log-container {
+    flex: 1;
+    background: var(--background);
+    padding: 12px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 11px;
+    line-height: 1.7;
+    color: var(--muted-foreground);
+}
+
+.log-line {
+    padding: 2px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--foreground);
+}
+
+.log-time {
+    color: var(--muted-foreground);
+    margin-right: 8px;
+    font-size: 10px;
+}
+
+.log-placeholder {
+    color: var(--muted-foreground);
+    font-style: italic;
+}
+
+.btn-resume-scroll {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 20;
+    animation: fadeIn 0.2s ease-out;
+}
+
+.btn-resume-scroll:hover {
+    opacity: 0.85;
+    transform: translateX(-50%) translateY(-1px);
+}
+
+/* ── Config Card ── */
+.config-card {
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* ── Printer Banner ── */
+.printer-status-info {
+    background: var(--muted);
+    border-radius: calc(var(--radius) - 2px);
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+}
+
+.printer-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    color: var(--accent-foreground);
+    border-radius: calc(var(--radius) - 2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.printer-info .printer-name {
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.printer-info .printer-status {
+    font-size: 11px;
+    color: var(--muted-foreground);
+    margin-top: 1px;
+}
+
+/* ─────────────────────────────────────────────
+   FORMS
+   ───────────────────────────────────────────── */
+.form-group {
+    margin-bottom: 14px;
+}
+
+.restaurant-name-display {
+    background: var(--muted);
+    padding: 12px;
+    border-radius: calc(var(--radius) - 2px);
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--foreground);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.network-warning {
+    background: color-mix(in hsl, var(--warning) 12%, transparent);
+    border: 1px solid color-mix(in hsl, var(--warning) 35%, transparent);
+    color: var(--warning);
+    padding: 12px;
+    border-radius: calc(var(--radius) - 2px);
+    margin-bottom: 16px;
+    font-size: 0.9em;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.form-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted-foreground);
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius);
+    color: var(--foreground);
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 2px color-mix(in hsl, var(--ring) 20%, transparent);
+}
+
+.form-group select option {
+    background: var(--card);
+}
+
+/* ─────────────────────────────────────────────
+   BUTTONS — mapeados 1:1 com Button.tsx
+   ───────────────────────────────────────────── */
+button {
+    cursor: pointer;
+    font-family: inherit;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    border-radius: var(--radius);
+    height: 36px;
+    padding: 0 14px;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* primary */
+.btn-primary,
+.btn-save {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    width: 100%;
+}
+
+.btn-primary:hover {
+    background: color-mix(in hsl, var(--primary) 90%, transparent);
+}
+
+.btn-save {
+    margin-top: 6px;
+    font-weight: 600;
+}
+
+.btn-save:hover {
+    background: color-mix(in hsl, var(--primary) 90%, transparent);
+}
+
+/* outline */
+.btn-secondary,
+.btn-refresh {
+    background: var(--background);
+    color: var(--foreground);
+    border: 1px solid var(--input);
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: var(--accent);
+    color: var(--accent-foreground);
+}
+
+.btn-refresh {
+    border-style: dashed;
+    margin-top: 6px;
+    margin-bottom: 14px;
+}
+
+.btn-refresh:hover {
+    background: var(--accent);
+}
+
+/* logout (destructive icon) */
+.btn-logout {
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-logout:hover {
+    background: var(--destructive);
+    color: var(--destructive-foreground);
+    border-color: transparent;
+}
+
+/* ── Stat Badges ── */
+.stat-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: calc(var(--radius) - 2px);
+    background: var(--muted);
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+}
+
+.stat-badge.success {
+    color: var(--success);
+    background: var(--success-bg);
+}
+
+.stat-badge.error {
+    color: var(--error);
+    background: var(--error-bg);
+}
+
+/* ── Connection Status ── */
+.connection-status {
+    padding: 4px 10px;
+    border-radius: 99px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.connection-status.online {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.connection-status.offline {
+    background: var(--error-bg);
+    color: var(--error);
+}
+
+.status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+/* ─────────────────────────────────────────────
+   LOG CONFIG HEADER
+   ───────────────────────────────────────────── */
+.log-config-header {
+    position: sticky;
+    top: 0;
+    background: var(--muted);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 12px;
+    margin: -12px -12px 12px;
+    z-index: 10;
+}
+
+.log-config-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted-foreground);
+    margin-bottom: 3px;
+}
+
+.log-config-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.log-config-icon {
+    font-size: 16px;
+    color: var(--foreground);
+}
+
+.log-config-text {
+    font-size: 12px;
+    color: var(--foreground);
+}
+
+.log-config-text strong {
+    font-weight: 600;
+}
+
+/* ─────────────────────────────────────────────
+   INPUT LOCK
+   ───────────────────────────────────────────── */
+.input-with-lock {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-with-lock input {
+    padding-right: 76px;
+}
+
+.visibility-btn,
+.lock-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: calc(var(--radius) - 2px);
+    display: flex;
+    align-items: center;
+    color: var(--muted-foreground);
+}
+
+.visibility-btn {
+    right: 40px;
+}
+
+.visibility-btn:hover {
+    color: var(--foreground);
+    background: var(--muted);
+}
+
+.lock-btn {
+    right: 4px;
+    color: var(--error);
+}
+
+.lock-btn:hover {
+    background: var(--error-bg);
+}
+
+.lock-btn.unlocked {
+    color: var(--success);
+}
+
+.lock-btn.unlocked:hover {
+    background: var(--success-bg);
+}
+
+/* ─────────────────────────────────────────────
+   TOAST NOTIFICATIONS
+   ───────────────────────────────────────────── */
+.toast-container {
+    position: fixed;
+    top: 64px;
+    right: 14px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--ring);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    min-width: 260px;
+    max-width: 340px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    animation: slideIn 0.25s ease-out forwards;
+    pointer-events: auto;
+}
+
+.toast.success {
+    border-left-color: var(--success);
+}
+
+.toast.error {
+    border-left-color: var(--error);
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.toast.success .toast-icon {
+    color: var(--success);
+}
+
+.toast.error .toast-icon {
+    color: var(--error);
+}
+
+.toast.info .toast-icon {
+    color: var(--foreground);
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 2px;
+    color: var(--card-foreground);
+}
+
+.toast-message {
+    font-size: 12px;
+    color: var(--muted-foreground);
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    cursor: pointer;
+    padding: 3px;
+    border-radius: 4px;
+}
+
+.toast-close:hover {
+    color: var(--foreground);
+    background: var(--muted);
+}
+
+/* ─────────────────────────────────────────────
+   MODALS
+   ───────────────────────────────────────────── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    max-width: 340px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    transform: scale(0.96);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-card {
+    transform: scale(1);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.modal-icon {
+    font-size: 18px;
+    color: var(--foreground);
+}
+
+.modal-header h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--card-foreground);
+}
+
+.modal-desc {
+    font-size: 13px;
+    color: var(--muted-foreground);
+    margin-bottom: 16px;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-body input {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--background);
+    border: 1px solid var(--input);
+    border-radius: var(--radius);
+    color: var(--foreground);
+    font-family: inherit;
+    font-size: 13px;
+}
+
+.modal-body input:focus {
+    outline: none;
+    border-color: var(--ring);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Botões do modal — tipografia menor, padding compacto, sem quebra de linha */
+.modal-actions .btn-cancel,
+.modal-actions .btn-confirm {
+    height: 32px;
+    font-size: 12.5px;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) - 2px);
+    white-space: nowrap;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    letter-spacing: 0;
+}
+
+/* Secundário: ghost — fundo transparente, borda sutil */
+.modal-actions .btn-cancel {
+    background: transparent;
+    color: var(--muted-foreground);
+    border: 1px solid var(--border);
+    font-weight: 500;
+}
+.modal-actions .btn-cancel:hover {
+    background: var(--accent);
+    color: var(--foreground);
+    border-color: color-mix(in hsl, var(--border) 60%, var(--foreground) 20%);
+}
+
+/* Primário (CTA): destacado em primary, peso semibold */
+.modal-actions .btn-confirm {
+    background: var(--primary);
+    color: var(--primary-foreground);
+    border: 1px solid var(--primary);
+    font-weight: 600;
+}
+.modal-actions .btn-confirm:hover {
+    background: color-mix(in hsl, var(--primary) 85%, var(--foreground) 15%);
+    border-color: color-mix(in hsl, var(--primary) 85%, var(--foreground) 15%);
+}
+
+/* Variante de baixíssima ênfase: link de texto, sem borda nem fundo */
+.modal-actions .btn-link {
+    height: 32px;
+    background: transparent;
+    border: none;
+    color: var(--muted-foreground);
+    font-size: 12px;
+    padding: 0 6px;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in hsl, var(--muted-foreground) 40%, transparent);
+    text-underline-offset: 3px;
+    white-space: nowrap;
+    margin-right: auto; /* empurra para a esquerda */
+    transition: color 0.15s ease;
+}
+.modal-actions .btn-link:hover {
+    color: var(--foreground);
+    text-decoration-color: var(--foreground);
+}
+
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+   ───────────────────────────────────────────── */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+        transform: translateX(16px);
+    }
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+.mb-2 {
+    margin-bottom: 8px;
+}

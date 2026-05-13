@@ -1,0 +1,24 @@
+node_modules/
+data/
+dist/
+*.log
+*.exe
+LabelChefAgent.exe
+Output/
+
+# Sessão criptografada (safeStorage / DPAPI) — NUNCA commitar.
+session.secure
+credentials.secure
+
+# Preferências do auto-updater (skipped versions)
+update-prefs.json
+
+# Build / Cache
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+
+# IDE
+.vscode/
+.idea/

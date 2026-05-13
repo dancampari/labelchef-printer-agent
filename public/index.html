@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LabelChef | Agente de Impressão</title>
+    <link rel="icon" type="image/x-icon" href="icon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="stylesheet" href="css/dashboard.css">
+
+    <!-- Anti-flash: aplica tema ANTES do paint -->
+    <script>
+        (function () {
+            var theme = localStorage.getItem('labelchef-agent-theme') ||
+                (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+
+    <!-- Ajuste CSS inline para os ícones ficarem centralizados -->
+    <style>
+        .material-symbols-outlined {
+            font-size: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        /* General Icon Sizes */
+        .logo .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+        .stat-badge .material-symbols-outlined {
+            font-size: 16px;
+            margin-top: -2px;
+        }
+
+        .printer-icon .material-symbols-outlined {
+            font-size: 24px;
+        }
+
+    </style>
+</head>
+
+<body>
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">
+                    <img src="icon.png" alt="LabelChef Agent" style="width: 32px; height: 32px; border-radius: 6px;">
+                    <div>
+                        <h1>LabelChef Agent <span id="updateBadge" class="version-badge update-badge state-idle"
+                                role="button" tabindex="0"
+                                onclick="onUpdateBadgeClick(event)"
+                                onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();onUpdateBadgeClick(event);}"
+                                title="Verificar atualizações"><span class="update-badge-dot" aria-hidden="true"></span><span id="updateBadgeLabel">v3.2.0</span></span></h1>
+                        <p class="subtitle">Agente de Impressão</p>
+                    </div>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="stat-badge">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span id="statUptime">0s</span>
+                </div>
+                <div class="stat-badge success">
+                    <span class="material-symbols-outlined">check_circle</span>
+                    <span id="statSuccess">0</span>
+                </div>
+                <div class="stat-badge error">
+                    <span class="material-symbols-outlined">cancel</span>
+                    <span id="statFail">0</span>
+                </div>
+                <button id="btnTheme" class="btn-theme" onclick="toggleTheme()" title="Alternar tema">
+                    <!-- Sol (visível no dark, clica para ir ao claro) -->
+                    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="4" />
+                        <path
+                            d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+                    </svg>
+                    <!-- Lua (visível no light, clica para ir ao dark) -->
+                    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+                    </svg>
+                </button>
+                <div id="statusBadge" class="connection-status offline">
+                    <span class="status-dot"></span>
+                    <span class="status-text">OFFLINE</span>
+                </div>
+                <button id="btnLogout" class="btn-logout" onclick="handleLogout()" title="Sair">
+                    <span class="material-symbols-outlined">logout</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Left Column: Status & Logs -->
+            <div class="left-column">
+                <!-- Status Card -->
+                <div class="status-card">
+                    <div class="status-icon error" id="statusIcon">
+                        <!-- Ícone principal de status -->
+                        <span class="material-symbols-outlined" style="font-size: 64px;">cloud_off</span>
+                    </div>
+                    <h2 id="statusTitle">Aguardando Conexão</h2>
+                    <p id="statusMessage">Configurando impressora...</p>
+                    <div class="status-actions">
+                        <button id="btnFix" class="btn-primary" onclick="runFix()">
+                            <span class="material-symbols-outlined">cleaning_services</span>
+                            Corrigir Fila de Impressão
+                        </button>
+                        <button class="btn-secondary" onclick="printTestPage()">
+                            <span class="material-symbols-outlined">print</span>
+                            Imprimir Página de Teste
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Logs Card -->
+                <div class="logs-card">
+                    <h3>Log do Sistema</h3>
+                    <div class="log-wrapper">
+                        <div class="log-container" id="logBox">
+                            <div class="log-placeholder">Aguardando logs...</div>
+                        </div>
+                        <button id="btnResumeScroll" class="btn-resume-scroll" onclick="resumeScroll()"
+                            style="display: none;">
+                            <span class="material-symbols-outlined"
+                                style="font-size: 16px; margin-right: 4px;">vertical_align_bottom</span>
+                            Logs Recentes
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Configuration -->
+            <div class="right-column">
+                <div class="config-card">
+                    <h3>Configurações</h3>
+
+                    <!-- Printer Status Info -->
+                    <div class="printer-status-info" id="printerStatusInfo">
+                        <div class="printer-icon">
+                            <span class="material-symbols-outlined">print</span>
+                        </div>
+                        <div class="printer-info">
+                            <div class="printer-name" id="printerInfoName">Detectando...</div>
+                            <div class="printer-status" id="printerInfoStatus">Monitorando 🟢</div>
+                        </div>
+                    </div>
+
+                    <form id="configForm" onsubmit="handleConfigSubmit(event)">
+                        <!-- Nome da Empresa -->
+                        <div class="form-group">
+                            <label>EMPRESA</label>
+                            <div id="restaurantNameDisplay" class="restaurant-name-display">
+                                <span class="material-symbols-outlined"
+                                    style="color: var(--foreground);">store</span>
+                                <span id="restaurantNameText">Carregando...</span>
+                            </div>
+                        </div>
+
+                        <!-- Connection Type -->
+                        <div class="form-group">
+                            <label for="printerType">CONEXÃO</label>
+                            <select id="printerType" name="printerType" onchange="togglePrinterFields(true)">
+                                <option value="network">Rede (TCP/IP)</option>
+                                <option value="usb">USB (Local)</option>
+                            </select>
+                        </div>
+
+                        <!-- Network Fields -->
+                        <div id="networkFields">
+                            <!-- AVISO VISUAL ZPL ONLY -->
+                            <div class="network-warning">
+                                <span class="material-symbols-outlined" style="color: var(--warning);">warning</span>
+                                <div>
+                                    <strong>Atenção:</strong> Esta opção é EXCLUSIVA para impressoras térmicas (Zebra,
+                                    Elgin, etc).<br>
+                                    <span style="opacity: 0.8; font-size: 0.9em;">Se sua impressora é Laser/Jato de
+                                        Tinta, instale no Windows e use a opção <strong>USB (Local)</strong> acima,
+                                        mesmo que ela use Wi-Fi.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="printerIp">ENDEREÇO IP</label>
+                                <input type="text" id="printerIp" name="printerIp" placeholder="Ex: 192.168.1.100">
+                            </div>
+                            <div class="form-group">
+                                <label for="printerPort">PORTA</label>
+                                <input type="number" id="printerPort" name="printerPort" placeholder="9100">
+                            </div>
+                            <div class="form-group">
+                                <label for="printerNickname">APELIDO</label>
+                                <input type="text" id="printerNickname" name="printerNickname"
+                                    placeholder="Ex: Principal">
+                            </div>
+                        </div>
+
+                        <!-- USB Fields -->
+                        <div id="usbFields" style="display:none">
+                            <div class="form-group">
+                                <label for="printerName">IMPRESSORA</label>
+                                <select id="printerName" name="printerName">
+                                    <option value="">Carregando...</option>
+                                </select>
+                            </div>
+                            <button type="button" class="btn-refresh" onclick="refreshPrinters()">
+                                <span class="material-symbols-outlined">refresh</span>
+                                Atualizar Lista
+                            </button>
+                        </div>
+
+                        <button type="submit" class="btn-save">
+                            <span class="material-symbols-outlined">save</span>
+                            Salvar Configuração
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+    </div>
+    </main>
+    </div>
+
+    <!-- Password Modal -->
+    <div id="passwordModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="material-symbols-outlined modal-icon">admin_panel_settings</span>
+                <h3>Acesso Restrito</h3>
+            </div>
+            <p class="modal-desc">Digite a senha de administrador para continuar.</p>
+            <div class="modal-body">
+                <input type="password" id="modalPasswordInput" placeholder="Senha do Administrador" autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closePasswordModal()">Cancelar</button>
+                <button type="button" class="btn-confirm" onclick="confirmPasswordModal()">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal (Generic) -->
+    <div id="confirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="material-symbols-outlined modal-icon" id="confirmModalIcon">help</span>
+                <h3 id="confirmModalTitle">Confirmação</h3>
+            </div>
+            <p class="modal-desc" id="confirmModalMessage">Tem certeza?</p>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeConfirmModal(false)">Cancelar</button>
+                <button type="button" class="btn-confirm" onclick="closeConfirmModal(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Modal — exibido só quando há update disponível / pronto -->
+    <div id="updateModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card" style="max-width: 480px;">
+            <div class="modal-header">
+                <span class="material-symbols-outlined modal-icon" id="updateModalIcon">system_update</span>
+                <h3 id="updateModalTitle">Nova versão disponível</h3>
+            </div>
+            <p class="modal-desc" id="updateModalSubtitle"></p>
+            <details id="updateModalChangelog" style="display:none; margin: 0 0 12px;">
+                <summary style="cursor:pointer; font-size:13px; font-weight:500; color: var(--primary, #2563eb);">Ver novidades desta versão</summary>
+                <div id="updateModalNotes" style="margin-top:8px; padding:10px; background: rgba(0,0,0,0.04); border-radius:6px; font-size:12px; line-height:1.5; max-height: 200px; overflow-y: auto; white-space: pre-wrap;"></div>
+            </details>
+            <div id="updateModalProgress" style="display:none; margin: 0 0 12px;">
+                <div style="height:6px; background: rgba(0,0,0,0.08); border-radius:3px; overflow:hidden;">
+                    <div id="updateModalProgressFill" style="height:100%; background: var(--primary, #2563eb); width:0%; transition: width .3s;"></div>
+                </div>
+                <div id="updateModalProgressLabel" style="font-size:11px; color: var(--text-secondary, #6b7280); margin-top:4px;">0%</div>
+            </div>
+            <div class="modal-actions" id="updateModalActions">
+                <!-- Botões inseridos dinamicamente -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal-overlay" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <span class="material-symbols-outlined modal-icon">lock_reset</span>
+                <h3>Alterar Senha Admin</h3>
+            </div>
+            <p class="modal-desc">Defina uma nova senha para proteger as configurações.</p>
+            <div class="modal-body">
+                <input type="password" id="newPasswordInput" placeholder="Nova Senha" class="mb-2">
+                <input type="password" id="confirmPasswordInput" placeholder="Confirme a Senha">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-cancel" onclick="closeChangePasswordModal()">Cancelar</button>
+                <button type="button" class="btn-confirm" onclick="saveNewPassword()">Salvar Senha</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        function applyTheme(isDark) {
+            var html = document.documentElement;
+            html.classList.toggle('dark', isDark);
+            localStorage.setItem('labelchef-agent-theme', isDark ? 'dark' : 'light');
+        }
+
+        function toggleTheme() {
+            var html = document.documentElement;
+            var nextIsDark = !html.classList.contains('dark');
+
+            html.classList.add('theme-switching');
+            var finish = function () {
+                window.setTimeout(function () {
+                    html.classList.remove('theme-switching');
+                }, 0);
+            };
+
+            if (document.startViewTransition) {
+                var transition = document.startViewTransition(function () {
+                    applyTheme(nextIsDark);
+                });
+                transition.finished.then(finish, finish);
+                return;
+            }
+
+            applyTheme(nextIsDark);
+            finish();
+        }
+    </script>
+</body>
+
+</html>

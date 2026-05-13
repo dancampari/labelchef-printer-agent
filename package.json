@@ -1,0 +1,78 @@
+{
+  "name": "labelchef-agent",
+  "productName": "LabelChef Agent",
+  "version": "3.2.0",
+  "author": "Cheflabel",
+  "description": "Agente de impressão térmica ZPL e genérica para o sistema LabelChef",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dancampari/labelchef-printer-agent.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder",
+    "release": "electron-builder --publish always",
+    "test": "node --test test/regression.test.js test/printer-validator.test.js test/pshost.test.js test/printer-usb.test.js test/monitor-queries.test.js test/ws-broadcast.test.js",
+    "predist": "npm test",
+    "prerelease": "npm test"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.47.10",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.6",
+    "electron-updater": "^6.3.9",
+    "express": "^4.21.2",
+    "iconv-lite": "^0.6.3",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "electron": "^34.5.8",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.labelchef.agent",
+    "asar": true,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/*",
+      "!*.ts",
+      "!test/**",
+      "!.github/**"
+    ],
+    "extraResources": [
+      {
+        "from": "public",
+        "to": "public"
+      },
+      {
+        "from": "assets",
+        "to": "assets"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "public/icon.ico",
+      "requestedExecutionLevel": "asInvoker",
+      "artifactName": "LabelChef-Agent-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": true
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "dancampari",
+        "repo": "labelchef-printer-agent",
+        "releaseType": "release"
+      }
+    ]
+  }
+}

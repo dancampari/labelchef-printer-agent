@@ -1,0 +1,43 @@
+name: Release
+
+# Dispara em duas situações:
+#  1. Push de tag v* (recomendado): você cria a tag local, faz git push --tags
+#     e o workflow builda + publica o instalador.
+#  2. Workflow manual via UI do GitHub (caso queira fazer release sem tag).
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+# Permissão mínima para criar release e fazer upload de artifacts.
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build & publish to GitHub Release
+        # electron-builder usa GH_TOKEN para criar/atualizar o release na tag atual
+        # e fazer upload do .exe, latest.yml e .blockmap (delta updates).
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Label</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: white;
+            color: black;
+            /* 60mm x 60mm em 96 DPI de tela = ~227px x 227px */
+            width: 226px;
+            height: 226px;
+            overflow: hidden;
+        }
+
+        .label {
+            width: 100%;
+            height: 100%;
+            padding: 6px 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header {
+            font-size: 12px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.3px;
+            line-height: 1.1;
+            border-bottom: 1.5px solid black;
+            padding-bottom: 3px;
+        }
+
+        .sub-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 7.5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .divider {
+            border-top: 1px solid black;
+            margin: 2px 0;
+        }
+
+        .data-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 1px;
+        }
+
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 6.5px;
+        }
+
+        .data-row .label-key {
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .data-row .label-val {
+            text-align: right;
+        }
+
+        .footer {
+            border-top: 1px solid black;
+            padding-top: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .footer-left {
+            flex: 1;
+        }
+
+        .footer-left .resp {
+            font-size: 7px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .footer-left .company {
+            font-size: 6px;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        .batch-code {
+            font-size: 9px;
+            font-weight: 900;
+            margin-top: 2px;
+        }
+
+        .qr-placeholder {
+            width: 48px;
+            height: 48px;
+            border: 1px solid black;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5px;
+            text-align: center;
+            flex-shrink: 0;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="label">
+        <div>
+            <div class="header" id="product-name">TESTE DE IMPRESSAO</div>
+            <div class="sub-row">
+                <span id="conservation">RESFRIADO</span>
+                <span id="quantity">1 UN</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="data-section">
+            <div class="data-row">
+                <span class="label-key">Val. Original:</span>
+                <span class="label-val" id="orig-exp"></span>
+            </div>
+            <div class="data-row">
+                <span class="label-key">Manipulação:</span>
+                <span class="label-val" id="mfg-date"></span>
+            </div>
+            <div class="data-row">
+                <span class="label-key">Validade:</span>
+                <span class="label-val" id="exp-date"></span>
+            </div>
+            <div class="data-row">
+                <span class="label-key">Marca / Forn.:</span>
+                <span class="label-val">GENERICA</span>
+            </div>
+            <div class="data-row">
+                <span class="label-key">SIF:</span>
+                <span class="label-val">---</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="footer">
+            <div class="footer-left">
+                <div class="resp">Resp.: LabelChef Agent</div>
+                <div class="company">
+                    <div id="company-name">LABELCHEF RESTAURANTE</div>
+                    <div>CNPJ: 00.000.000/0001-00</div>
+                    <div>RUA DA IMPRESSAO, 123</div>
+                </div>
+                <div class="batch-code" id="batch-code">#TEST-000000</div>
+            </div>
+            <div class="qr-placeholder">QR<br>CODE</div>
+        </div>
+    </div>
+
+    <script>
+        // Os dados são injetados via URL params pelo agente
+        const params = new URLSearchParams(window.location.search);
+
+        function pad(n) { return String(n).padStart(2, '0'); }
+        const now = new Date();
+        const exp = new Date(now); exp.setDate(exp.getDate() + 7);
+
+        const dateStr = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()}`;
+        const timeStr = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+        const expStr = `${pad(exp.getDate())}/${pad(exp.getMonth() + 1)}/${exp.getFullYear()}`;
+
+        document.getElementById('orig-exp').textContent = dateStr;
+        document.getElementById('mfg-date').textContent = `${dateStr} - ${timeStr}`;
+        document.getElementById('exp-date').textContent = `${expStr} - ${timeStr}`;
+        document.getElementById('batch-code').textContent = `#TEST-${Date.now().toString().slice(-6)}`;
+
+        const companyName = params.get('company');
+        if (companyName) document.getElementById('company-name').textContent = companyName.toUpperCase().substring(0, 25);
+    </script>
+</body>
+
+</html>

@@ -307,15 +307,10 @@
                 } catch (e) { }
             }
 
-            try {
-                const res = await fetch('/api/saved-credentials');
-                const data = await res.json();
-                if (data.ok && data.email && data.password) {
-                    document.getElementById('email').value = data.email;
-                    document.getElementById('password').value = data.password;
-                    document.getElementById('remember').checked = true;
-                }
-            } catch (e) { }
+            // SECURITY (v3.2.3): /api/saved-credentials removido — expunha senha em
+            // cleartext via HTTP local, acessível a qualquer processo na máquina.
+            // Auto-login via token criptografado (session.secure) já cobre o caso
+            // de "Lembrar-me" sem precisar nunca expor a senha de volta ao browser.
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {

@@ -53,18 +53,12 @@ const Controllers = {
         }
     },
 
-    getSavedCredentials: async (req, res) => {
-        try {
-            const creds = await auth.loadCredentials();
-            if (creds) {
-                res.json({ ok: true, email: creds.email, password: creds.password });
-            } else {
-                res.json({ ok: false });
-            }
-        } catch (e) {
-            res.status(500).json({ ok: false, error: e.message });
-        }
-    },
+    // REMOVIDO em v3.2.3 (security audit): expunha senha em cleartext via HTTP
+    // local. Qualquer processo na máquina conseguia fazer GET no endpoint e
+    // capturar email+senha. Auto-login agora usa exclusivamente o session.secure
+    // criptografado via safeStorage/DPAPI (tryAutoLogin abaixo).
+    //
+    // getSavedCredentials: <removed — DO NOT REINTRODUCE>,
 
     tryAutoLogin: async (req, res) => {
         try {

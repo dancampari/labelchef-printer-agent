@@ -112,6 +112,59 @@ class Database {
         }
     }
 
+    /**
+     * SECURITY (v3.2.4) — publica o agent_token em printer_settings para que
+     * o frontend autenticado da empresa consiga ler e enviá-lo nos headers de
+     * impressão direta. RLS na tabela garante isolamento por company_id.
+     *
+     * Cria a linha se não existir (caso o user nunca tenha configurado
+     * impressora antes — sem isso, frontend não tem onde ler o token).
+     */
+    async syncAgentToken(token) {
+        if (!state.isAuthenticated()) return false;
+        try {
+            const { data: existing, error: readErr } = await this.supabase
+                .from('printer_settings')
+                .select('id, agent_token')
+                .eq('company_id', state.companyId)
+                .maybeSingle();
+            if (readErr) {
+                logger.warn('DB', 'syncAgentToken: falha ao ler printer_settings', readErr.message);
+                return false;
+            }
+
+            if (existing) {
+                if (existing.agent_token === token) return true; // já sincronizado
+                const { error } = await this.supabase
+                    .from('printer_settings')
+                    .update({ agent_token: token, updated_at: new Date().toISOString() })
+                    .eq('id', existing.id);
+                if (error) {
+                    logger.warn('DB', 'syncAgentToken: update falhou', error.message);
+                    return false;
+                }
+                logger.info('DB', 'agent_token atualizado em printer_settings.');
+            } else {
+                const { error } = await this.supabase
+                    .from('printer_settings')
+                    .insert([{
+                        company_id: state.companyId,
+                        agent_token: token,
+                        updated_at: new Date().toISOString(),
+                    }]);
+                if (error) {
+                    logger.warn('DB', 'syncAgentToken: insert falhou', error.message);
+                    return false;
+                }
+                logger.info('DB', 'agent_token criado em printer_settings.');
+            }
+            return true;
+        } catch (e) {
+            logger.warn('DB', 'syncAgentToken: exceção', e.message);
+            return false;
+        }
+    }
+
     async updateJobStatus(id, status, errorMsg = null) {
         if (!state.isAuthenticated()) return;
         try {

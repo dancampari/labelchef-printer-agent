@@ -249,6 +249,16 @@ async function bootstrap() {
             socket.startPolling();
             monitor.start();
         }
+        // SECURITY (v3.2.4): garante que o agent_token existe + está publicado
+        // no printer_settings da empresa, mesmo em boot por restore de sessão
+        // (não passa por /login nem /api/auto-login do controllers).
+        try {
+            const agentToken = require('./src/core/agentToken');
+            const token = await agentToken.ensureToken();
+            await database.syncAgentToken(token);
+        } catch (e) {
+            logger.warn('MAIN', 'Falha ao sincronizar agent_token no boot:', e.message);
+        }
     } else {
         logger.warn('MAIN', 'Agente não autenticado. Aguardando login via Dashboard.');
     }

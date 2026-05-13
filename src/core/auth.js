@@ -239,4 +239,9 @@ class Auth {
     }
 }
 
-module.exports = new Auth();
+// Exporta a instância como default + helpers IPC para outros módulos que
+// precisam de criptografia em disco (agentToken).
+const authInstance = new Auth();
+module.exports = authInstance;
+module.exports.safeEncrypt = safeEncrypt;
+module.exports.safeDecrypt = safeDecrypt;

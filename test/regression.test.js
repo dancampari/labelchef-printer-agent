@@ -633,9 +633,11 @@ test('BATCH: controller localPrintBatch existe e usa global.enqueueLocalJob', ()
     assert.match(src, /source:\s*['"]local-batch['"]/);
 });
 
-test('BATCH: server.js registra rota POST /api/local-print-batch', () => {
+test('BATCH: server.js registra rota POST /api/local-print-batch (com middleware token v3.2.4+)', () => {
     const src = root('api/server.js');
-    assert.match(src, /app\.post\(['"]\/api\/local-print-batch['"],\s*Controllers\.localPrintBatch\)/);
+    // v3.2.4: rotas de impressão local agora exigem X-Agent-Token. O middleware
+    // requireAgentToken pode aparecer entre o path e o controller — relaxamos o regex.
+    assert.match(src, /app\.post\(\s*['"]\/api\/local-print-batch['"][\s\S]{0,200}Controllers\.localPrintBatch\)/);
 });
 
 // ── Stats centralizadas (v3.6.0+) ────────────────────────────────────────────
@@ -806,7 +808,8 @@ test('FLUXO RÁPIDO: /api/local-print existe e aceita HTML direto', () => {
     const ctrl = root('api/controllers.js');
     const srv = root('api/server.js');
     assert.match(ctrl, /localPrint:\s*async/, 'controller localPrint precisa existir');
-    assert.match(srv, /app\.post\(['"]\/api\/local-print['"],\s*Controllers\.localPrint\)/, 'rota POST /api/local-print precisa estar registrada');
+    // v3.2.4: rota agora passa por requireAgentToken middleware antes do controller.
+    assert.match(srv, /app\.post\(\s*['"]\/api\/local-print['"][\s\S]{0,200}Controllers\.localPrint\)/, 'rota POST /api/local-print precisa estar registrada');
 });
 
 test('FLUXO RÁPIDO: localPrint NÃO usa Supabase Storage/SumatraPDF (caminho rápido)', () => {

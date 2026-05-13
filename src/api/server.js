@@ -7,7 +7,30 @@ const CONSTANTS = require('../config/constants');
 const Controllers = require('./controllers');
 const logger = require('../utils/logger');
 const wsBroadcast = require('../core/wsBroadcast');
+const agentToken = require('../core/agentToken');
 const pkg = require('../../package.json');
+
+/**
+ * SECURITY (v3.2.4): middleware de validação do X-Agent-Token.
+ *
+ * Threat blocked: processos LOCAIS (malware, extensão de browser com host
+ * permissions, curl em ataque manual) que conseguem chegar em 127.0.0.1 mesmo
+ * sem passar pelo CORS do browser. Sem token, não imprimem.
+ *
+ * Frontend autenticado lê o token de `printer_settings.agent_token` (RLS
+ * company-scoped) e envia em `X-Agent-Token`.
+ *
+ * Backwards compat: durante a janela de deploy, requests SEM header retornam
+ * 401 — sites/frontends desatualizados deixam de funcionar. Esperado.
+ */
+function requireAgentToken(req, res, next) {
+    const provided = req.headers['x-agent-token'];
+    if (!agentToken.validateToken(provided)) {
+        logger.warn('AGENT_TOKEN', `Acesso rejeitado: token inválido ou ausente em ${req.path}`);
+        return res.status(401).json({ ok: false, error: 'X-Agent-Token inválido ou ausente.' });
+    }
+    next();
+}
 
 class Server {
     start() {
@@ -52,10 +75,12 @@ class Server {
         app.post('/api/auto-login', Controllers.tryAutoLogin);
         app.post('/api/logout', Controllers.logout);
 
-        // Health + Local Print (públicas)
+        // /api/health permanece sem token — o probe do frontend precisa dele
+        // antes de saber se há agent local instalado. Nenhum dado sensível.
         app.get('/api/health', Controllers.health);
-        app.post('/api/local-print', Controllers.localPrint);
-        app.post('/api/local-print-batch', Controllers.localPrintBatch);
+        // /api/local-print* exige X-Agent-Token a partir de v3.2.4 (Fase 3B).
+        app.post('/api/local-print', requireAgentToken, Controllers.localPrint);
+        app.post('/api/local-print-batch', requireAgentToken, Controllers.localPrintBatch);
 
         // Auto-update (controle manual: usuário decide quando baixar / instalar / pular)
         app.get('/api/update', Controllers.updateStatus);

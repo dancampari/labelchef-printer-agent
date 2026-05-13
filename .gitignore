@@ -4,6 +4,9 @@ dist/
 *.log
 *.exe
 LabelChefAgent.exe
+# SumatraPDF é dependência bundled — precisa estar no repo para CI buildar
+# o instalador com ela. Whitelist explícito sobre o `*.exe` acima.
+!assets/bin/SumatraPDF.exe
 Output/
 
 # Sessão criptografada (safeStorage / DPAPI) — NUNCA commitar.

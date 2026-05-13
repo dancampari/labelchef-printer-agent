@@ -57,7 +57,7 @@ class PrinterPDF {
 
         } catch (e) {
             state.stats.failedJobs++;
-            logger.error('PRINTER:PDF', `Falha ao imprimir PDF`, e.message);
+            logger.error('PRINTER:PDF', `Falha ao imprimir PDF: ${e.message}`);
             throw e;
         } finally {
             try { if (fs.existsSync(downloadPath)) fs.unlinkSync(downloadPath); } catch (e) { }

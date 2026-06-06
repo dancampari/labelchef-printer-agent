@@ -1,7 +1,7 @@
 {
   "name": "labelchef-agent",
   "productName": "LabelChef Agent",
-  "version": "3.2.4",
+  "version": "3.3.0",
   "author": "Cheflabel",
   "description": "Agente de impressão térmica ZPL e genérica para o sistema LabelChef",
   "main": "main.js",

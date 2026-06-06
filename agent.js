@@ -263,7 +263,9 @@ async function bootstrap() {
         logger.warn('MAIN', 'Agente não autenticado. Aguardando login via Dashboard.');
     }
 
-    // Heartbeat 60s (frontend tolera 2min)
+    // Heartbeat 60s — FALLBACK para o status "online" (a fonte primária agora é
+    // o Realtime Presence, ver socket.js). Mantido em 60s: a Presence já dá
+    // detecção em tempo real; o heartbeat só serve a clients/agents antigos.
     setInterval(() => database.sendHeartbeat(), 60000);
     if (state.isAuthenticated()) database.sendHeartbeat();
 

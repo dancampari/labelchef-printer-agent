@@ -27,6 +27,8 @@ const WATCHDOG_MS = 20_000;
 class Socket {
     constructor() {
         this.subscription = null;
+        this.presenceChannel = null;
+        this.presenceKey = require('crypto').randomUUID(); // 1 entrada de presença por processo
         this.handler = null;
         this.timer = null;
         this.timerKind = null; // 'reconnect' | 'watchdog'
@@ -74,6 +76,20 @@ class Socket {
                 }
             });
 
+        // Presence: anuncia este agente para o frontend da empresa em TEMPO REAL
+        // (canal PRIVADO, RLS por company_id). O frontend só consome (não faz track).
+        // Substitui a dependência do heartbeat de 2 min para "agente online agora".
+        this.presenceChannel = auth.client.channel(`agent-presence:${state.companyId}`, {
+            config: { private: true, presence: { key: this.presenceKey } },
+        });
+        this.presenceChannel.subscribe((status) => {
+            if (status === 'SUBSCRIBED') {
+                this._trackPresence().catch((e) => logger.warn('PRESENCE', 'track falhou', e.message));
+            } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                logger.warn('PRESENCE', `Canal de presença: ${status}`);
+            }
+        });
+
         // Enquanto não chega SUBSCRIBED, ficamos em modo reconnect
         this._switchTimer('reconnect');
     }
@@ -92,6 +108,11 @@ class Socket {
 
     disconnect() {
         this._clearTimer();
+        if (this.presenceChannel) {
+            try { this.presenceChannel.untrack(); } catch { /* ignore */ }
+            try { auth.client.removeChannel(this.presenceChannel); } catch { /* ignore */ }
+            this.presenceChannel = null;
+        }
         if (this.subscription) {
             try { auth.client.removeChannel(this.subscription); } catch { /* ignore */ }
             this.subscription = null;
@@ -157,6 +178,31 @@ class Socket {
         if (data && data.length && this.handler) {
             logger.info('SOCKET', `Drenando ${data.length} job(s) pendente(s)`);
             for (const job of data) this.handler(job);
+        }
+    }
+
+    // ── Presence ─────────────────────────────────────────────────────────────
+    async _trackPresence() {
+        if (!this.presenceChannel) return;
+        let version = '0.0.0';
+        try { version = require('../../package.json').version; } catch { /* ignore */ }
+        const cfg = state.currentConfig || {};
+        const ps = state.printerStatus || {};
+        await this.presenceChannel.track({
+            role: 'agent',
+            key: this.presenceKey,
+            printerName: cfg.printerName || null,
+            printerType: cfg.printerType || null,
+            printerOnline: !!ps.isOnline,
+            version,
+            at: new Date().toISOString(),
+        });
+    }
+
+    /** Re-publica a presença (ex.: quando o status da impressora muda). */
+    updatePresence() {
+        if (this.presenceChannel) {
+            this._trackPresence().catch((e) => logger.warn('PRESENCE', 'updatePresence falhou', e.message));
         }
     }
 }
